@@ -21,11 +21,11 @@ class Walk {
         self.sketchURLString = sketchURLString
     }
     
-    convenience init?(withArray arr: [Any]) {
-        if let design = arr[8] as? String,
-            let descript = arr[9] as? String,
-            let loc = arr[10] as? String,
-            let sketch = arr[11] as? String  {
+    convenience init?(withDict dict: [String:Any]) {
+        if let design = dict["designer"] as? String,
+            let descript = dict["info"] as? String,
+            let loc = dict["location"] as? String,
+            let sketch = dict["sketch_by_designer"] as? String  {
             self.init(designer: design, location: loc, description: descript, sketchURLString: sketch)
         }
         else {

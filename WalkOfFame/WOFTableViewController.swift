@@ -10,31 +10,27 @@ import UIKit
 
 class WOFTableViewController: UITableViewController {
     var walks = [Walk]()
-
+    var apiEndPoint = "https://data.cityofnewyork.us/resource/btth-hrxi.json"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let resourceURL = getResourceURL(from: "walk_of_fame", withExt: "json"),
-        let data = getData(from: resourceURL),
-            let walks = getWalks(from: data) {
-            self.walks = walks
-        }
-    }
+           }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
     }
+  
 
     // MARK: - Table view data source
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return walks.count
     }
     
     /*
@@ -47,20 +43,40 @@ class WOFTableViewController: UITableViewController {
      }
      */
     
-    internal func getResourceURL(from fileName: String, withExt ext: String) -> URL? {
+     func getResourceURL(from fileName: String, withExt ext: String) -> URL? {
         let fileURL: URL? = Bundle.main.url(forResource: fileName, withExtension: ext)
         
         return fileURL
     }
     
-    internal func getData(from url: URL) -> Data? {
+     func getData(from url: URL) -> Data? {
         let fileData: Data? = try? Data(contentsOf: url)
         return fileData
     }
     
-    internal func getWalks(from jsonData: Data) -> [Walk]? {
-        // replace this return with a full implementation
-        return nil
+     func getWalks(from jsonData: Data) -> [Walk]? {
+        do {
+            let walkJSONData: Any = try JSONSerialization.jsonObject(with: jsonData, options: [])
+            if let walkArrayDict = walkJSONData as? [String:Any] {
+                if let allWalkArray = walkArrayDict["data"] as? [[Any]] {
+                    for el in allWalkArray {
+                        if let w = Walk(withArray: el) {
+                            walks.append(w)
+                        }
+                    }
+                }
+            }
+        }
+        catch let error as NSError {
+            // JSONSerialization doc specficially says an NSError is returned if JSONSerialization.jsonObject(with:options:) fails
+            print("Error occurred while parsing data: \(error.localizedDescription)")
+        }
+        
+        print("Function Array Count \(walks.count)")
+        return walks
+        // Dispose of any resources that can be recreated.
+        }
+
     }
 
     /*
@@ -73,4 +89,4 @@ class WOFTableViewController: UITableViewController {
     }
     */
 
-}
+
